@@ -110,16 +110,18 @@ class Header extends React.Component<Props> {
         readOnly={!isEditing}
         isCompact={this.isScrolled}
       >
-        <Modal
-          isOpen={this.showShareModal}
-          onRequestClose={this.handleCloseShareModal}
-          title="Share document"
-        >
-          <DocumentShare
-            document={document}
-            onSubmit={this.handleCloseShareModal}
-          />
-        </Modal>
+        {isAdmin && (
+            <Modal
+              isOpen={this.showShareModal}
+              onRequestClose={this.handleCloseShareModal}
+              title="Share document"
+            >
+              <DocumentShare
+                document={document}
+                onSubmit={this.handleCloseShareModal}
+              />
+            </Modal>
+        )}
         <Breadcrumb document={document} />
         <Title isHidden={!this.isScrolled} onClick={this.handleClickTitle}>
           {document.title}

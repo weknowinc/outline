@@ -32,7 +32,8 @@ router.get('/redirect', auth(), async ctx => {
   });
 
   const team = await Team.findById(user.teamId);
-  ctx.redirect(`${team.url}/dashboard`);
+  // ctx.redirect(`${team.url}/dashboard`);
+  ctx.redirect(`${team.url}/doc/intro-ho574j74Fk`);
 });
 
 app.use(bodyParser());

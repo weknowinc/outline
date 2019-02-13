@@ -29,7 +29,7 @@ function Home(props: Props) {
   </Helmet>
   <Grid>
   <Hero id="signin">
-      <h1>Your team’s knowledge base</h1>
+      <h1>weKnow knowledge base</h1>
   <HeroText>
   weKnow Inc. Team wiki, documentation, meeting notes, playbooks, onboarding, work
   logs, brainstorming, & more…
@@ -85,27 +85,8 @@ function Home(props: Props) {
   </Feature>
   <Feature size={{ desktop: 1 / 3 }} />
   <Feature size={{ desktop: 1 / 3 }}>
-<h2>Markdown Support</h2>
-  <p>
-  Documents are stored in plain Markdown making editing, import
-    and export painless. Shortcuts are also built right into the
-  editor so you can easily format using **markdown syntax** if you
-    like.
-    </p>
     </Feature>
     <Feature size={{ desktop: 1 / 3 }}>
-<h2>
-  <SlackLogo fill="#000" size={30} />&nbsp;Slack &amp; API
-  </h2>
-  <p>
-  Get Slack notifications about changes and search Outline
-  directly within Slack using the{' '}
-<code>/outline &lt;keyword&gt;</code> command. Access your
-  information programatically through the modern API.
-  </p>
-  <p>
-  <a href={slackAppStoreUrl()}>Slack App</a>
-  </p>
   </Feature>
   <Feature size={{ desktop: 1 / 3 }} />
   <Feature size={{ desktop: 1 / 3 }}></Feature>

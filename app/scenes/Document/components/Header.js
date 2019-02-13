@@ -182,7 +182,8 @@ class Header extends React.Component<Props> {
               </Button>
             </Action>
           )}
-          {!isEditing && (
+          {!isEditing &&
+            isAdmin && (
             <Action>
               <DocumentMenu
                 document={document}
@@ -192,6 +193,7 @@ class Header extends React.Component<Props> {
             </Action>
           )}
           {!isEditing &&
+            isAdmin &&
             !isDraft && (
               <React.Fragment>
                 <Separator />

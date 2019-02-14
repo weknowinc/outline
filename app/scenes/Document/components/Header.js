@@ -136,7 +136,8 @@ class Header extends React.Component<Props> {
             )}
           {!isDraft &&
             !isEditing &&
-            canShareDocuments && (
+            canShareDocuments &&
+            isAdmin && (
               <Action>
                 <Button
                   onClick={this.handleShareLink}

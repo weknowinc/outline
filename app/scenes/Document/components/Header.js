@@ -7,17 +7,20 @@ import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import breakpoint from 'styled-components-breakpoint';
 import { NewDocumentIcon } from 'outline-icons';
+import { transparentize } from 'polished';
 import Document from 'models/Document';
 import AuthStore from 'stores/AuthStore';
 import { documentEditUrl } from 'utils/routeHelpers';
+import { meta } from 'utils/keyboard';
 
 import Flex from 'shared/components/Flex';
-import Breadcrumb from './Breadcrumb';
+import Breadcrumb from 'shared/components/Breadcrumb';
 import DocumentMenu from 'menus/DocumentMenu';
 import NewChildDocumentMenu from 'menus/NewChildDocumentMenu';
 import DocumentShare from 'scenes/DocumentShare';
 import Button from 'components/Button';
 import Modal from 'components/Modal';
+import Badge from 'components/Badge';
 import Collaborators from 'components/Collaborators';
 import { Action, Separator } from 'components/Actions';
 
@@ -98,8 +101,10 @@ class Header extends React.Component<Props> {
       savingIsDisabled,
       auth,
     } = this.props;
-    const canShareDocuments = auth.team && auth.team.sharing;
+    const canShareDocuments =
+      auth.team && auth.team.sharing && !document.isArchived;
     const canToggleEmbeds = auth.team && auth.team.documentEmbeds;
+    const canEdit = !document.isArchived && !isEditing;
     const currentUser = auth.user;
     const isAdmin = currentUser.isAdmin;
 
@@ -109,6 +114,7 @@ class Header extends React.Component<Props> {
         justify="space-between"
         readOnly={!isEditing}
         isCompact={this.isScrolled}
+        shrink={false}
       >
         {isAdmin && (
             <Modal
@@ -124,7 +130,7 @@ class Header extends React.Component<Props> {
         )}
         <Breadcrumb document={document} />
         <Title isHidden={!this.isScrolled} onClick={this.handleClickTitle}>
-          {document.title}
+          {document.title} {document.isArchived && <Badge>Archived</Badge>}
         </Title>
         <Wrapper align="center" justify="flex-end">
           {!isDraft && !isEditing && <Collaborators document={document} />}
@@ -154,7 +160,7 @@ class Header extends React.Component<Props> {
               <Action>
                 <Button
                   onClick={this.handleSave}
-                  title="Save changes (Cmd+Enter)"
+                  title={`Save changes (${meta}+Enter)`}
                   disabled={savingIsDisabled}
                   isSaving={isSaving}
                   neutral={isDraft}
@@ -169,7 +175,7 @@ class Header extends React.Component<Props> {
             <Action>
               <Button
                 onClick={this.handlePublish}
-                title="Publish document (Cmd+Enter)"
+                title="Publish document"
                 disabled={savingIsDisabled}
                 small
               >
@@ -177,7 +183,7 @@ class Header extends React.Component<Props> {
               </Button>
             </Action>
           )}
-          {!isEditing &&
+          {!canEdit &&
             isAdmin && (
             <Action>
               <Button onClick={this.handleEdit} neutral small>
@@ -185,8 +191,7 @@ class Header extends React.Component<Props> {
               </Button>
             </Action>
           )}
-          {!isEditing &&
-            isAdmin && (
+          {!canEdit && (
             <Action>
               <DocumentMenu
                 document={document}
@@ -195,7 +200,7 @@ class Header extends React.Component<Props> {
               />
             </Action>
           )}
-          {!isEditing &&
+          {canEdit &&
             isAdmin &&
             !isDraft && (
               <React.Fragment>
@@ -233,9 +238,9 @@ const Actions = styled(Flex)`
   right: 0;
   left: 0;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.9);
+  background: ${props => transparentize(0.1, props.theme.background)};
   border-bottom: 1px solid
-    ${props => (props.isCompact ? props.theme.smoke : 'transparent')};
+    ${props => (props.isCompact ? props.theme.background : 'transparent')};
   padding: 12px;
   transition: all 100ms ease-out;
   transform: translate3d(0, 0, 0);
@@ -254,6 +259,7 @@ const Title = styled.div`
   font-size: 16px;
   font-weight: 600;
   text-align: center;
+  align-items: center;
   justify-content: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -265,7 +271,7 @@ const Title = styled.div`
   width: 0;
 
   ${breakpoint('tablet')`	
-    display: block;
+    display: flex;
     flex-grow: 1;
   `};
 `;

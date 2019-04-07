@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import { Link } from 'react-router-dom';
 import Document from 'models/Document';
 import styled, { withTheme } from 'styled-components';
+import { darken } from 'polished';
 import Flex from 'shared/components/Flex';
 import Highlight from 'components/Highlight';
 import { StarredIcon } from 'outline-icons';
@@ -16,11 +17,12 @@ type Props = {
   context?: ?string,
   showCollection?: boolean,
   showPublished?: boolean,
+  link?: boolean,
   ref?: *,
 };
 
 const StyledStar = withTheme(styled(({ solid, theme, ...props }) => (
-  <StarredIcon color={solid ? theme.black : theme.text} {...props} />
+  <StarredIcon color={theme.text} {...props} />
 ))`
   flex-shrink: 0;
   opacity: ${props => (props.solid ? '1 !important' : 0)};
@@ -59,8 +61,8 @@ const DocumentLink = styled(Link)`
   &:hover,
   &:active,
   &:focus {
-    background: ${props => props.theme.smokeLight};
-    border: 2px solid ${props => props.theme.smoke};
+    background: ${props => props.theme.listItemHoverBackground};
+    border: 2px solid ${props => props.theme.listItemHoverBorder};
     outline: none;
 
     ${StyledStar}, ${StyledDocumentMenu} {
@@ -73,7 +75,7 @@ const DocumentLink = styled(Link)`
   }
 
   &:focus {
-    border: 2px solid ${props => props.theme.slateDark};
+    border: 2px solid ${props => darken(0.5, props.theme.listItemHoverBorder)};
   }
 `;
 
@@ -102,7 +104,7 @@ const Title = styled(Highlight)`
 
 const ResultContext = styled(Highlight)`
   display: block;
-  color: ${props => props.theme.slateDark};
+  color: ${props => props.theme.textTertiary};
   font-size: 14px;
   margin-top: -0.25em;
   margin-bottom: 0.25em;
@@ -137,6 +139,7 @@ class DocumentPreview extends React.Component<Props> {
       showPublished,
       highlight,
       context,
+      link,
       ...rest
     } = this.props;
 
@@ -146,23 +149,29 @@ class DocumentPreview extends React.Component<Props> {
 
     return (
       <DocumentLink
-        to={{
-          pathname: document.url,
-          state: { title: document.title },
-        }}
+        as={link === false ? 'div' : undefined}
+        to={
+          link === false
+            ? undefined
+            : {
+                pathname: document.url,
+                state: { title: document.title },
+              }
+        }
         {...rest}
       >
         <Heading>
           <Title text={document.title} highlight={highlight} />
-          {!document.isDraft && (
-            <Actions>
-              {document.starred ? (
-                <StyledStar onClick={this.unstar} solid />
-              ) : (
-                <StyledStar onClick={this.star} />
-              )}
-            </Actions>
-          )}
+          {!document.isDraft &&
+            !document.isArchived && (
+              <Actions>
+                {document.starred ? (
+                  <StyledStar onClick={this.unstar} solid />
+                ) : (
+                  <StyledStar onClick={this.star} />
+                )}
+              </Actions>
+            )}
           <StyledDocumentMenu document={document} />
         </Heading>
         {!queryIsInTitle && (

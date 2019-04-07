@@ -1,7 +1,13 @@
 // @flow
 import * as React from 'react';
 import { observer, inject } from 'mobx-react';
-import { HomeIcon, EditIcon, SearchIcon, StarredIcon } from 'outline-icons';
+import {
+  ArchiveIcon,
+  HomeIcon,
+  EditIcon,
+  SearchIcon,
+  StarredIcon,
+} from 'outline-icons';
 
 import Flex from 'shared/components/Flex';
 import AccountMenu from 'menus/AccountMenu';
@@ -62,7 +68,10 @@ class MainSidebar extends React.Component<Props> {
                 label="Home"
               />
               <SidebarLink
-                to="/search"
+                to={{
+                  pathname: '/search',
+                  state: { fromMenu: true },
+                }}
                 icon={<SearchIcon />}
                 label="Search"
                 exact={false}
@@ -90,6 +99,17 @@ class MainSidebar extends React.Component<Props> {
             </Section>
             <Section>
               <Collections onCreateCollection={this.handleCreateCollection} />
+            </Section>
+            <Section>
+              <SidebarLink
+                to="/archive"
+                icon={<ArchiveIcon />}
+                exact={false}
+                label="Archive"
+                active={
+                  documents.active ? documents.active.isArchived : undefined
+                }
+              />
             </Section>
           </Scrollable>
         </Flex>

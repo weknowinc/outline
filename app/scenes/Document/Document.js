@@ -27,6 +27,8 @@ import LoadingPlaceholder from 'components/LoadingPlaceholder';
 import LoadingIndicator from 'components/LoadingIndicator';
 import CenteredContent from 'components/CenteredContent';
 import PageTitle from 'components/PageTitle';
+import Notice from 'shared/components/Notice';
+import Time from 'shared/components/Time';
 import Search from 'scenes/Search';
 import Error404 from 'scenes/Error404';
 import ErrorOffline from 'scenes/ErrorOffline';
@@ -98,7 +100,25 @@ class DocumentScene extends React.Component<Props> {
   @keydown('m')
   goToMove(ev) {
     ev.preventDefault();
-    if (this.document) this.props.history.push(documentMoveUrl(this.document));
+
+    if (this.document && !this.document.isArchived) {
+      this.props.history.push(documentMoveUrl(this.document));
+    }
+  }
+
+  @keydown('e')
+  goToEdit(ev) {
+    ev.preventDefault();
+
+    if (this.document && !this.document.isArchived) {
+      this.props.history.push(documentEditUrl(this.document));
+    }
+  }
+
+  @keydown('esc')
+  goBack(ev) {
+    ev.preventDefault();
+    this.props.history.goBack();
   }
 
   @keydown('h')
@@ -149,6 +169,10 @@ class DocumentScene extends React.Component<Props> {
 
       if (document) {
         this.props.ui.setActiveDocument(document);
+
+        if (document.isArchived && this.isEditing) {
+          return this.goToDocumentCanonical();
+        }
 
         if (this.props.auth.user && !shareId) {
           if (!this.isEditing && document.publishedAt) {
@@ -356,7 +380,13 @@ class DocumentScene extends React.Component<Props> {
                 onSave={this.onSave}
               />
             )}
-            <MaxWidth column auto>
+            <MaxWidth archived={document.isArchived} column auto>
+              {document.archivedAt && (
+                <Notice muted>
+                  Archived by {document.updatedBy.name}{' '}
+                  <Time dateTime={document.archivedAt} /> ago
+                </Notice>
+              )}
               <Editor
                 id={document.id}
                 key={embedsDisabled ? 'embeds-disabled' : 'embeds-enabled'}
@@ -369,7 +399,7 @@ class DocumentScene extends React.Component<Props> {
                 onChange={this.onChange}
                 onSave={this.onSave}
                 onCancel={this.onDiscard}
-                readOnly={!this.isEditing}
+                readOnly={!this.isEditing || document.isArchived}
                 toc={!revision}
                 ui={this.props.ui}
                 schema={schema}
@@ -384,10 +414,11 @@ class DocumentScene extends React.Component<Props> {
 }
 
 const MaxWidth = styled(Flex)`
+  ${props =>
+    props.archived && `* { color: ${props.theme.textSecondary} !important; } `};
   padding: 0 16px;
   max-width: 100vw;
   width: 100%;
-  height: 100%;
 
   ${breakpoint('tablet')`	
     padding: 0 24px;

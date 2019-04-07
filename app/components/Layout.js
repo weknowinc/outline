@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import styled from 'styled-components';
+import styled, { withTheme } from 'styled-components';
 import breakpoint from 'styled-components-breakpoint';
 import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
@@ -10,7 +10,6 @@ import keydown from 'react-keydown';
 import Analytics from 'components/Analytics';
 import Flex from 'shared/components/Flex';
 import {
-  documentEditUrl,
   homeUrl,
   searchUrl,
   matchDocumentSlug as slug,
@@ -35,6 +34,7 @@ type Props = {
   auth: AuthStore,
   ui: UiStore,
   notifications?: React.Node,
+  theme: Object,
 };
 
 @observer
@@ -42,10 +42,21 @@ class Layout extends React.Component<Props> {
   scrollable: ?HTMLDivElement;
   @observable redirectTo: ?string;
 
+  componentWillMount() {
+    this.updateBackground();
+  }
+
   componentDidUpdate() {
+    this.updateBackground();
+
     if (this.redirectTo) {
       this.redirectTo = undefined;
     }
+  }
+
+  updateBackground() {
+    // ensure the wider page color always matches the theme
+    window.document.body.style.background = this.props.theme.background;
   }
 
   @keydown(['/', 't', 'meta+k'])
@@ -58,16 +69,6 @@ class Layout extends React.Component<Props> {
   @keydown('d')
   goToDashboard() {
     this.redirectTo = homeUrl();
-  }
-
-  @keydown('e')
-  goToEdit(ev) {
-    const activeDocument = this.props.documents.active;
-    if (!activeDocument) return;
-
-    ev.preventDefault();
-    ev.stopPropagation();
-    this.redirectTo = documentEditUrl(activeDocument);
   }
 
   @keydown('shift+/')
@@ -124,6 +125,7 @@ class Layout extends React.Component<Props> {
 }
 
 const Container = styled(Flex)`
+  background: ${props => props.theme.background};
   position: relative;
   width: 100vw;
   min-height: 100%;
@@ -142,4 +144,4 @@ const Content = styled(Flex)`
   `};
 `;
 
-export default inject('auth', 'ui', 'documents')(Layout);
+export default inject('auth', 'ui', 'documents')(withTheme(Layout));

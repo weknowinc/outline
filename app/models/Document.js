@@ -36,6 +36,8 @@ export default class Document extends BaseModel {
   emoji: string;
   parentDocument: ?string;
   publishedAt: ?string;
+  archivedAt: string;
+  deletedAt: ?string;
   url: string;
   urlId: string;
   shareUrl: ?string;
@@ -79,6 +81,16 @@ export default class Document extends BaseModel {
   }
 
   @computed
+  get isArchived(): boolean {
+    return !!this.archivedAt;
+  }
+
+  @computed
+  get isDeleted(): boolean {
+    return !!this.deletedAt;
+  }
+
+  @computed
   get isDraft(): boolean {
     return !this.publishedAt;
   }
@@ -86,7 +98,7 @@ export default class Document extends BaseModel {
   @computed
   get isEmpty(): boolean {
     // Check if the document title has been modified and user generated content exists
-    return this.text.replace(new RegExp(`^#$`), '').trim().length === 0;
+    return this.text.replace(/^#/, '').trim().length === 0;
   }
 
   @computed
@@ -115,7 +127,11 @@ export default class Document extends BaseModel {
     this.updateTitle();
   };
 
-  restore = (revision: Revision) => {
+  archive = () => {
+    return this.store.archive(this);
+  };
+
+  restore = (revision: ?Revision) => {
     return this.store.restore(this, revision);
   };
 
